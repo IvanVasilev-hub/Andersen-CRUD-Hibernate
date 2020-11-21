@@ -17,7 +17,7 @@ public class UsersCrud {
   }
 
   public void insertUser(User user) {
-    User inBase = getUserByName(user.getFirstName(), user.getLastName());
+    User inBase = getUser(user.getFirstName(), user.getLastName());
     if (inBase == null) {
       Session session = sessionFactory.openSession();
       session.beginTransaction();
@@ -39,11 +39,14 @@ public class UsersCrud {
     }
   }
 
-  public User getUserById(long id) {
+  public User getUser(long id) {
     User user = null;
     Session session = sessionFactory.openSession();
     session.beginTransaction();
-    List users = session.createQuery("FROM User where id = :id")
+//    user = session.get(User.class, id);
+    List users = session.createQuery("SELECT u FROM User u " +
+        "LEFT JOIN FETCH u.roles " +
+        "where u.id = :id")
         .setParameter("id", id).list();
     if (users != null && !users.isEmpty()) {
       user = (User) users.get(0);
@@ -53,11 +56,13 @@ public class UsersCrud {
     return user;
   }
 
-  public User getUserByName(String firstName, String lastName) {
+  public User getUser(String firstName, String lastName) {
     User user = null;
     Session session = sessionFactory.openSession();
     session.beginTransaction();
-    List users = session.createQuery("FROM User where firstName = :firstName AND lastName = :lastName")
+    List users = session.createQuery("SELECT u FROM User u " +
+        "LEFT JOIN FETCH u.roles " +
+        "where u.firstName = :firstName AND u.lastName = :lastName")
         .setParameter("firstName", firstName)
         .setParameter("lastName", lastName).list();
     if (users != null && !users.isEmpty()) {
@@ -90,7 +95,7 @@ public class UsersCrud {
   }
 
   public void updateUserById(long id, User user) {
-    User currUser = getUserById(id);
+    User currUser = getUser(id);
     if (currUser != null) {
       Session session = sessionFactory.openSession();
       session.beginTransaction();
@@ -106,7 +111,8 @@ public class UsersCrud {
   public void printAllUsers() {
     Session session = sessionFactory.openSession();
     session.beginTransaction();
-    List users = session.createQuery("FROM User ").list();
+    List users = session.createQuery("SELECT u FROM User u LEFT JOIN FETCH u.roles", User.class)
+        .list();
     users.forEach(System.out::println);
     session.getTransaction().commit();
     session.close();

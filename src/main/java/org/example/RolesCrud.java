@@ -30,7 +30,9 @@ public class RolesCrud {
     Role result = null;
     Session session = sessionFactory.openSession();
     session.beginTransaction();
-    List roles = session.createQuery("FROM Role where role = :role")
+    List roles = session.createQuery("SELECT r FROM Role r " +
+        "LEFT join FETCH r.users " +
+        "where r.role = :role")
         .setParameter("role", role).list();
     if (roles != null && !roles.isEmpty()) {
       result = (Role) roles.get(0);
@@ -38,6 +40,22 @@ public class RolesCrud {
     session.getTransaction().commit();
     session.close();
     return result;
+  }
+
+  public Role getRole(int id) {
+    Role role = null;
+    Session session = sessionFactory.openSession();
+    session.beginTransaction();
+    List roles = session.createQuery("SELECT r FROM Role r " +
+        "LEFT join FETCH r.users " +
+        "where r.id = :id")
+        .setParameter("id", id).list();
+    if (roles != null && !roles.isEmpty()) {
+      role = (Role) roles.get(0);
+    }
+    session.getTransaction().commit();
+    session.close();
+    return role;
   }
 
   public void deleteRole(Role role) {
@@ -64,7 +82,8 @@ public class RolesCrud {
   public void printAllRoles() {
     Session session = sessionFactory.openSession();
     session.beginTransaction();
-    List roles = session.createQuery("FROM Role ").list();
+    List roles = session.createQuery("SELECT r FROM Role r LEFT JOIN FETCH r.users", Role.class)
+        .list();
     roles.forEach(System.out::println);
     session.getTransaction().commit();
     session.close();

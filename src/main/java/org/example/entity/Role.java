@@ -37,12 +37,12 @@ public class Role {
 
     Role role = (Role) o;
 
-    return id.equals(role.id) && this.role.equals(role.role);
+    return this.role.equals(role.role);
   }
 
   @Override
   public int hashCode() {
-    return id.hashCode();
+    return role.hashCode();
   }
 
   @Override

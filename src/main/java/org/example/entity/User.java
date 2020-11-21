@@ -26,7 +26,7 @@ public class User {
   @Column(name = "last_name")
   private String lastName;
 
-  @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @JoinTable(name = "users_roles",
       joinColumns = {@JoinColumn(name = "user_id")},
       inverseJoinColumns = {@JoinColumn(name = "role_id")}
@@ -58,7 +58,7 @@ public class User {
 
   @Override
   public int hashCode() {
-    return id.hashCode();
+    return firstName.hashCode() + lastName.hashCode();
   }
 
   @Override
